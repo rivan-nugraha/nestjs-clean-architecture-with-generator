@@ -301,7 +301,7 @@ const hash = generateSignature(apiKey, apiSecret, accessToken, timestamp)
 
     ### Directory Structure
     The generator creates the following folder structure for each module:
-        ```vbnet
+        ```
         src/
         module/
             {folderName}/
