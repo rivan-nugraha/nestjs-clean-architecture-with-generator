@@ -38,6 +38,7 @@ I've compiled best practices from various articles in this **repository**. While
 	- [Controller](#controller)
 	
 - [References](#references)
+- [Generator](#Generator)
 
 ---
 ## Description
@@ -279,7 +280,7 @@ const hash = generateSignature(apiKey, apiSecret, accessToken, timestamp)
     - [Royi Benita - Generic Repository NestJS](https://betterprogramming.pub/implementing-a-generic-repository-pattern-using-nestjs-fb4db1b61cce)
     - [NestJS Docs](https://docs.nestjs.com/)
 
-* ## Module Generator Documentation
+* ## Generator
     This document provides a comprehensive guide for using the Module Generator script, which automates the generation of a full NestJS module based on a model structure. It helps in generating domain entities, MongoDB entities, repositories, use cases, controllers, and the required module configurations.
 
     Table of Contents
@@ -289,7 +290,7 @@ const hash = generateSignature(apiKey, apiSecret, accessToken, timestamp)
     5. File Generation Flow
     6. How to Use the Generator
     7. Customization
-    
+
     ### Overview
     The Module Generator automates the creation of boilerplate code required for a new NestJS module. This includes:
         - MongoDB entity definitions
