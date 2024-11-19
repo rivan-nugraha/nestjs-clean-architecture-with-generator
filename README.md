@@ -302,7 +302,6 @@ const hash = generateSignature(apiKey, apiSecret, accessToken, timestamp)
     ### Directory Structure
     The generator creates the following folder structure for each module:
 
-        ```typescript
         src/
             module/
             {folderName}/
@@ -324,7 +323,7 @@ const hash = generateSignature(apiKey, apiSecret, accessToken, timestamp)
                     {moduleName}.use-case-provider.ts
                     {moduleName}.use-case.module.ts
                     {moduleName}.module.ts
-        ```
+                    
     Where: 
     - controller: Contains controller and DTOs for handling HTTP requests.
     - domain: Contains the entity definition and mapper for converting domain objects.
