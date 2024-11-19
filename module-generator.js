@@ -31,6 +31,46 @@ function extractModuleName(variableName) {
   return toPascalCase(variableName.replace(prefixMatch[0], ''));
 }
 
+function addModuleToResourceProviders(moduleName, modulePath, resourcePath) {
+  const relativeModulePath = `./${modulePath.toLowerCase()}/${moduleName.toLowerCase()}.module`;
+  const moduleImport = `import { ${moduleName}Module } from '${relativeModulePath}';`;
+
+  let fileContent = fs.readFileSync(resourcePath, 'utf8');
+
+  // Check if module is already imported
+  if (fileContent.includes(moduleImport)) {
+    console.log(`${moduleName}Module is already imported in ${resourcePath}`);
+    return;
+  }
+
+  // Add the import statement
+  const importSectionEnd = fileContent.indexOf(
+    'export const resourceProviders',
+  );
+  fileContent =
+    fileContent.slice(0, importSectionEnd) +
+    `${moduleImport}\n` +
+    fileContent.slice(importSectionEnd);
+
+  // Add the module to the array
+  const arrayStart = fileContent.indexOf('[');
+  const arrayEnd = fileContent.indexOf(']', arrayStart);
+  const existingModules = fileContent.slice(arrayStart + 1, arrayEnd).trim();
+
+  const updatedModules = existingModules
+    ? `${existingModules}, ${moduleName}Module`
+    : `${moduleName}Module`;
+
+  fileContent =
+    fileContent.slice(0, arrayStart + 1) +
+    ` ${updatedModules} ` +
+    fileContent.slice(arrayEnd);
+
+  // Write the updated content back to the file
+  fs.writeFileSync(resourcePath, fileContent, 'utf8');
+  console.log(`Added ${moduleName} Module to Resource Provider.`);
+}
+
 // For Generate Props
 function generateInterfaceProps(props) {
   return props
@@ -137,7 +177,7 @@ export interface ${toPascalCase(moduleName)}RepositoryPort
   repository: (moduleName) => `import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from'mongoose';
-import { BaseRepository } from 'src/core/base/domain/repository';
+import { BaseRepository } from 'src/core/base/module/repository.base';
 import { ${toPascalCase(
     moduleName,
   )}Entity } from '../domain/${moduleName.toLowerCase()}.entity';
@@ -146,7 +186,7 @@ import { ${toPascalCase(
   )}Mapper } from '../domain/${moduleName.toLowerCase()}.mapper';
 import { ${toPascalCase(
     moduleName,
-  )}MongoEntity } from ./${moduleName.toLowerCase()}.mongo-entity';
+  )}MongoEntity } from './${moduleName.toLowerCase()}.mongo-entity';
 import { ${toPascalCase(
     moduleName,
   )}RepositoryPort } from '../interface/${moduleName.toLowerCase()}.repository.port';
@@ -163,7 +203,9 @@ extends BaseRepository<${toPascalCase(moduleName)}Entity, ${toPascalCase(
           moduleName,
         )}MongoEntity>,
     ) {
-        super(${toPascalCase(moduleName)}Model)
+        super(${toPascalCase(moduleName)}Model, ${toPascalCase(
+          moduleName,
+        )}Mapper)
     }
 
     __init__(): void{
@@ -235,10 +277,10 @@ import { ${toPascalCase(
   )}RepositoryModule } from './repository/${moduleName.toLowerCase()}.repository.module';
 import { ${toPascalCase(
     moduleName,
-  )}UseCaseModule } from './use-cases/${moduleName.toLowerCase()}.use-case.module';
+  )}UseCaseModule } from './use-case/${moduleName.toLowerCase()}.use-case.module';
 import { ${toPascalCase(
     moduleName,
-  )}Controller } from './controllers/${moduleName.toLowerCase()}.controller';
+  )}Controller } from './controller/${moduleName.toLowerCase()}.controller';
 
 @Module({
     imports: [${toPascalCase(moduleName)}RepositoryModule, ${toPascalCase(
@@ -250,11 +292,12 @@ export class ${toPascalCase(moduleName)}Module {}
   `,
 };
 
-function generateModule(moduleName, collectionName, props) {
+function generateModule(folderName, moduleName, collectionName, props) {
   const basePath = path.join(
     __dirname,
     'src',
     'module',
+    folderName.toLowerCase(),
     moduleName.toLowerCase(),
   );
   const folders = [
@@ -377,17 +420,25 @@ function generateModule(moduleName, collectionName, props) {
   console.log(
     `Module "${moduleName}" Created Successfully With Collection Name: "${collectionName}"!`,
   );
+
+  addModuleToResourceProviders(
+    moduleName,
+    `${folderName}/${moduleName.toLowerCase()}`,
+    'src/module/resource.provider.ts',
+  );
 }
 
 async function runGenerator() {
   const imported = require('./model');
   imported.models.forEach((module) => {
-    const collectionName = Object.keys(module)[0];
-    const model = module[collectionName];
+    const folderName = Object.keys(module)[0];
+    module[folderName].forEach((interface) => {
+      const collectionName = Object.keys(interface)[0];
+      const model = interface[collectionName];
+      const moduleName = extractModuleName(collectionName);
 
-    const moduleName = extractModuleName(collectionName);
-
-    generateModule(moduleName, collectionName, model);
+      generateModule(folderName, moduleName, collectionName, model);
+    });
   });
 }
 
