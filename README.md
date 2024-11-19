@@ -289,114 +289,115 @@ const hash = generateSignature(apiKey, apiSecret, accessToken, timestamp)
     5. File Generation Flow
     6. How to Use the Generator
     7. Customization
+    
     ### Overview
-        The Module Generator automates the creation of boilerplate code required for a new NestJS module. This includes:
-            - MongoDB entity definitions
-            - Domain entities
-            - Repository and use case layers
-            - Controller and service providers
-        The generator reads model definitions from a file and creates the required module files for each defined model.
+    The Module Generator automates the creation of boilerplate code required for a new NestJS module. This includes:
+        - MongoDB entity definitions
+        - Domain entities
+        - Repository and use case layers
+        - Controller and service providers
+    The generator reads model definitions from a file and creates the required module files for each defined model.
 
     ### Directory Structure
-        The generator creates the following folder structure for each module:
-            ```vbnet
-            src/
-            module/
-                {folderName}/
-                {moduleName}/
-                    controller/
-                    dto/
-                    {moduleName}.controller.ts
-                    domain/
-                    {moduleName}.entity.ts
-                    {moduleName}.mapper.ts
-                    interface/
-                    {moduleName}.repository.port.ts
-                    repository/
-                    {moduleName}.mongo-entity.ts
-                    {moduleName}.repository.service.ts
-                    {moduleName}.repository-provider.ts
-                    {moduleName}.repository.module.ts
-                    use-case/
-                    {moduleName}.use-case-provider.ts
-                    {moduleName}.use-case.module.ts
-                    {moduleName}.module.ts
-            ```
-        Where: 
-        - controller: Contains controller and DTOs for handling HTTP requests.
-        - domain: Contains the entity definition and mapper for converting domain objects.
-        - interface: Contains repository port definitions.
-        - repository: Contains MongoDB entity definition, repository services, and provider.
-        - use-case: Contains business logic use case providers and modules.
+    The generator creates the following folder structure for each module:
+        ```vbnet
+        src/
+        module/
+            {folderName}/
+            {moduleName}/
+                controller/
+                dto/
+                {moduleName}.controller.ts
+                domain/
+                {moduleName}.entity.ts
+                {moduleName}.mapper.ts
+                interface/
+                {moduleName}.repository.port.ts
+                repository/
+                {moduleName}.mongo-entity.ts
+                {moduleName}.repository.service.ts
+                {moduleName}.repository-provider.ts
+                {moduleName}.repository.module.ts
+                use-case/
+                {moduleName}.use-case-provider.ts
+                {moduleName}.use-case.module.ts
+                {moduleName}.module.ts
+        ```
+    Where: 
+    - controller: Contains controller and DTOs for handling HTTP requests.
+    - domain: Contains the entity definition and mapper for converting domain objects.
+    - interface: Contains repository port definitions.
+    - repository: Contains MongoDB entity definition, repository services, and provider.
+    - use-case: Contains business logic use case providers and modules.
 
     ### Key Functions
-        1. generateEntityProps(props)
-            Generates entity properties based on the provided property list.
-            - Input: Array of property objects.
-            - Output: A formatted string representing the entity properties for NestJS schema.
+    1. generateEntityProps(props)
+        Generates entity properties based on the provided property list.
+        - Input: Array of property objects.
+        - Output: A formatted string representing the entity properties for NestJS schema.
 
-        2. toPascalCase(str)
-            Converts a string into PascalCase (e.g., tm_barang becomes TmBarang).
+    2. toPascalCase(str)
+        Converts a string into PascalCase (e.g., tm_barang becomes TmBarang).
 
-        3. extractModuleName(variableName)
-            Extracts the module name from a variable name by removing known prefixes (tm_, tt_, etc.) and converting the rest to PascalCase.
-            - Input: tm_barang
-            - Output: TmBarang
+    3. extractModuleName(variableName)
+        Extracts the module name from a variable name by removing known prefixes (tm_, tt_, etc.) and converting the rest to PascalCase.
+        - Input: tm_barang
+        - Output: TmBarang
 
-        4. addModuleToResourceProviders(moduleName, modulePath, resourcePath)
-            Automatically imports the newly created module into the resourceProviders array and adds it to the resource-provider.ts file.
-            - Input: moduleName, modulePath, resourcePath
-            - Action: Updates the resource-provider.ts to include the new module.
+    4. addModuleToResourceProviders(moduleName, modulePath, resourcePath)
+        Automatically imports the newly created module into the resourceProviders array and adds it to the resource-provider.ts file.
+        - Input: moduleName, modulePath, resourcePath
+        - Action: Updates the resource-provider.ts to include the new module.
 
     ### File Generation Flow
-        The file generation follows these steps:
-        - Receive Model Definition:
-            The model is read from a JSON file, and the generator extracts properties and variable names from it.
+    The file generation follows these steps:
+    - Receive Model Definition:
+        The model is read from a JSON file, and the generator extracts properties and variable names from it.
 
-        - Generate Folders and Files:
-            Based on the module name and its properties, the generator creates the necessary directories and files using the templates.
+    - Generate Folders and Files:
+        Based on the module name and its properties, the generator creates the necessary directories and files using the templates.
 
-        - Populate Templates:
-            The templates are populated with the module name, properties, and any additional information, creating the final code.
+    - Populate Templates:
+        The templates are populated with the module name, properties, and any additional information, creating the final code.
 
-        - Auto Import to Resource Providers:
-            After generating the module files, the generator automatically imports the new module into the resource-providers.ts file.
+    - Auto Import to Resource Providers:
+        After generating the module files, the generator automatically imports the new module into the resource-providers.ts file.
 
     ### How to Use the Generator
-        1. Setup:
-            Place your model definitions in a file (e.g., models.js), with a structure like this:
-            ```javascript
-            const models = [
-                {
-                    master: [
-                        {
-                            tm_barang: {
-                                nama_barang: 'string',
-                                harga_satuan: 'number',
-                                stok: 'number',
-                                kategori: 'string',
-                                'supplier?': 'string',
-                            },
+    1. Setup:
+        Place your model definitions in a file (e.g., models.js), with a structure like this:
+        ```javascript
+        const models = [
+            {
+                master: [
+                    {
+                        tm_barang: {
+                            nama_barang: 'string',
+                            harga_satuan: 'number',
+                            stok: 'number',
+                            kategori: 'string',
+                            'supplier?': 'string',
                         },
-                    ]
-                }
-            ];
-            ```
-        2. Run the Generator:
-            Run the following command to start the generator process:
+                    },
+                ]
+            }
+        ];
+        ```
+    2. Run the Generator:
+        Run the following command to start the generator process:
 
-            ```bash
-            node generate.js
-            ```
-            This will:
-            - Generate a new NestJS module based on the model definitions.
-            - Create the necessary files for repository, domain entities, use cases, controllers, etc.
-            - Add the new module to resource-providers.ts.
+        ```bash
+        node generate.js
+        ```
+        This will:
+        - Generate a new NestJS module based on the model definitions.
+        - Create the necessary files for repository, domain entities, use cases, controllers, etc.
+        - Add the new module to resource-providers.ts.
 
     ### Customization
-        You can customize the generator by adjusting the following:
-        - Model File: Modify the model file format to suit your project structure.
-        - Template Modifications: If you need specific logic in your templates (e.g., custom methods in the entity), update the templates object.
-        - Path Adjustments: Modify the paths in the generateModule function to point to your actual directories.
+    You can customize the generator by adjusting the following:
+    - Model File: Modify the model file format to suit your project structure.
+    - Template Modifications: If you need specific logic in your templates (e.g., custom methods in the entity), update the templates object.
+    - Path Adjustments: Modify the paths in the generateModule function to point to your actual directories.
     
     By following this documentation, you can seamlessly generate and maintain multiple NestJS modules, making your development process more efficient and standardized!
