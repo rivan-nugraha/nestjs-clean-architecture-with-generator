@@ -301,25 +301,26 @@ const hash = generateSignature(apiKey, apiSecret, accessToken, timestamp)
 
     ### Directory Structure
     The generator creates the following folder structure for each module:
+
         ```typescript
         src/
             module/
-                {folderName}/
-                {moduleName}/
-                    controller/
+            {folderName}/
+            {moduleName}/
+                controller/
                     dto/
                     {moduleName}.controller.ts
-                    domain/
+                domain/
                     {moduleName}.entity.ts
                     {moduleName}.mapper.ts
-                    interface/
+                interface/
                     {moduleName}.repository.port.ts
-                    repository/
+                repository/
                     {moduleName}.mongo-entity.ts
                     {moduleName}.repository.service.ts
                     {moduleName}.repository-provider.ts
                     {moduleName}.repository.module.ts
-                    use-case/
+                use-case/
                     {moduleName}.use-case-provider.ts
                     {moduleName}.use-case.module.ts
                     {moduleName}.module.ts
