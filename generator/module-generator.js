@@ -102,6 +102,9 @@ export const ${toPascalCase(
 export const ${toPascalCase(
       moduleName,
     )}Model = [{ name: ${moduleName}MongoEntity.name, schema: ${moduleName}Schema}];
+    const ${toPascalCase(moduleName)}Document = ${toPascalCase(
+      moduleName,
+    )}MongoEntity & Document;
 `;
   },
   entity: (moduleName, props) => {
@@ -184,9 +187,9 @@ import { ${toPascalCase(
 import { ${toPascalCase(
     moduleName,
   )}Mapper } from '../domain/${moduleName.toLowerCase()}.mapper';
-import { ${toPascalCase(
+import { ${toPascalCase(moduleName)}MongoEntity, ${toPascalCase(
     moduleName,
-  )}MongoEntity } from './${moduleName.toLowerCase()}.mongo-entity';
+  )}Document } from './${moduleName.toLowerCase()}.mongo-entity';
 import { ${toPascalCase(
     moduleName,
   )}RepositoryPort } from '../interface/${moduleName.toLowerCase()}.repository.port';
@@ -201,7 +204,7 @@ extends BaseRepository<${toPascalCase(moduleName)}Entity, ${toPascalCase(
         @InjectModel(${toPascalCase(moduleName)}MongoEntity.name)
         private readonly ${toPascalCase(moduleName)}Model: Model<${toPascalCase(
           moduleName,
-        )}MongoEntity>,
+        )}Document>,
     ) {
         super(${toPascalCase(moduleName)}Model, ${toPascalCase(
           moduleName,
@@ -295,7 +298,7 @@ export class ${toPascalCase(moduleName)}Module {}
 function generateModule(folderName, moduleName, collectionName, props) {
   const basePath = path.join(
     __dirname,
-    'src',
+    '../src',
     'module',
     folderName.toLowerCase(),
     moduleName.toLowerCase(),
@@ -429,9 +432,10 @@ function generateModule(folderName, moduleName, collectionName, props) {
 }
 
 async function runGenerator() {
-  const imported = require('./model');
+  const imported = require('../model/index');
   imported.models.forEach((module) => {
     const folderName = Object.keys(module)[0];
+    console.log(folderName);
     module[folderName].forEach((interface) => {
       const collectionName = Object.keys(interface)[0];
       const model = interface[collectionName];

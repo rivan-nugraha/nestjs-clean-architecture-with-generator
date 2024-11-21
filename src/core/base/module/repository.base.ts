@@ -30,9 +30,9 @@ export abstract class BaseRepository<Entity, MongoEntity>
     protected readonly mapper: DbMapper<Entity, MongoEntity>,
   ) {}
 
-  async findAll(session: ClientSession | null = null): Promise<Entity[]> {
+  async findAll(session: ClientSession | null = null): Promise<MongoEntity[]> {
     const result = await this.genericModel.find().session(session);
-    return result.map((it) => this.mapper.toDomain(it));
+    return result;
   }
 
   async findOne(
@@ -93,9 +93,7 @@ export abstract class BaseRepository<Entity, MongoEntity>
       .session(typeof paramTwo !== 'string' ? paramTwo : paramThree);
     if (foundData) {
       throw new ConflictException(
-        typeof paramTwo === 'string'
-          ? paramTwo
-          : '' || `E 409: DATA ALREADY EXISTS`,
+        typeof paramTwo === 'string' ? paramTwo : `E 409: DATA ALREADY EXISTS`,
       );
     }
   }
