@@ -13,6 +13,22 @@ function generateEntityProps(props) {
     .join('\n');
 }
 
+function noRequiredPropsGenerator(props) {
+  return props.filter((prop) => prop.required);
+}
+
+function generateMapperProps(props) {
+  return props.map((prop) => {
+    if (prop.type === 'Date') {
+      return `${prop.name}: new Date()`;
+    } else if (prop.type === 'boolean') {
+      return `${prop.name}: true`;
+    } else {
+      return `${prop.name}: ''`;
+    }
+  });
+}
+
 function toPascalCase(str) {
   return str
     .match(/[A-Z]{2,}(?=[A-Z][a-z]+[0-9]*|\b)|[A-Z]?[a-z]+[0-9]*|[A-Z]|[0-9]+/g)
@@ -119,19 +135,35 @@ export interface ${toPascalCase(moduleName)}Props {
     ${generateInterfaceProps(parsedProps)}
 }
 
+export interface Update${toPascalCase(moduleName)}Props {
+
+    ${generateInterfaceProps(parsedProps)}
+}
+
 export class ${moduleName}Entity extends Entity<${moduleName}Props> {
     constructor(props: ${moduleName}Props) {
         super(props);
     }
+
+    async update${toPascalCase(moduleName)}(payload: Update${toPascalCase(
+      moduleName,
+    )}Props){
+    }
 }
   `;
   },
-  mapper: (moduleName) => `import { ${toPascalCase(
-    moduleName,
-  )}Entity } from './${moduleName.toLowerCase()}.entity';
+  mapper: (moduleName, props) => {
+    const parsedProps = Object.entries(props).map(([key, type]) => {
+      const isOptional = key.endsWith('?');
+      const cleanKey = isOptional ? key.slice(0, -1) : key; // Remove '?' if optional
+      return { name: cleanKey, type, required: isOptional };
+    });
+    return `import { ${toPascalCase(
+      moduleName,
+    )}Entity } from './${moduleName.toLowerCase()}.entity';
 import { ${toPascalCase(
-    moduleName,
-  )}MongoEntity } from '../repository/${moduleName.toLowerCase()}.mongo-entity';
+      moduleName,
+    )}MongoEntity } from '../repository/${moduleName.toLowerCase()}.mongo-entity';
 import {
     DbMapper,
     MongoEntityProps
@@ -147,6 +179,7 @@ export class ${toPascalCase(moduleName)}Mapper{
 
         return {
             ...entityProps,
+            ${generateMapperProps(noRequiredPropsGenerator(parsedProps))}
             // Add Domain Field Here Brother
         }
     }
@@ -160,7 +193,8 @@ export class ${toPascalCase(moduleName)}Mapper{
         );
     }
 }
-  `,
+  `;
+  },
   portRepository: (
     moduleName,
   ) => `import { BaseRepositoryPort } from 'src/core/port/repository.base.port';
@@ -317,7 +351,7 @@ function generateModule(folderName, moduleName, collectionName, props) {
     folders.forEach((folder) => fs.mkdirSync(path.join(basePath, folder)));
   } else {
     console.log(
-      `Folder "${moduleName}" already exists! Going To Createing Files`,
+      `Folder "${moduleName}" already exists! Going To Creating Files`,
     );
   }
 
@@ -340,7 +374,7 @@ function generateModule(folderName, moduleName, collectionName, props) {
   // Creating Mapper
   fs.writeFileSync(
     path.join(basePath, 'domain', `${moduleName.toLowerCase()}.mapper.ts`),
-    templates.mapper(moduleName),
+    templates.mapper(moduleName, props),
   );
 
   // Creating RepositoryPort
@@ -435,7 +469,6 @@ async function runGenerator() {
   const imported = require('../model/index');
   imported.models.forEach((module) => {
     const folderName = Object.keys(module)[0];
-    console.log(folderName);
     module[folderName].forEach((interface) => {
       const collectionName = Object.keys(interface)[0];
       const model = interface[collectionName];

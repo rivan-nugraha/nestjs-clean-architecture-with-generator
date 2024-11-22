@@ -18,7 +18,8 @@
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
-    "generate:module": "node ./generator/module-generator.js"
+    "generate:module": "node ./generator/module-generator.js",
+    "generate:use-case": "node ./generator/use-case-generator.js"
   },
   "dependencies": {
     "@nestjs/common": "^10.0.0",
@@ -34,7 +35,7 @@
     "class-validator": "^0.14.0",
     "crypto-js": "^4.2.0",
     "helmet": "^7.1.0",
-    "inquirer": "^12.1.0",
+    "inquirer": "^8.2.6",
     "ip": "^1.1.8",
     "mongoose": "^8.0.2",
     "passport": "^0.7.0",
