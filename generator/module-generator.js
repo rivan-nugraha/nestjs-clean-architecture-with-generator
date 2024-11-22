@@ -102,7 +102,7 @@ export const ${toPascalCase(
 export const ${toPascalCase(
       moduleName,
     )}Model = [{ name: ${moduleName}MongoEntity.name, schema: ${moduleName}Schema}];
-    const ${toPascalCase(moduleName)}Document = ${toPascalCase(
+    export type ${toPascalCase(moduleName)}Document = ${toPascalCase(
       moduleName,
     )}MongoEntity & Document;
 `;
